@@ -71,3 +71,21 @@ const updateCityPopulation = (index, amount) =>
     population: city.population + amount
   }))
 ```
+
+# Connect with react-redux
+
+```
+export const App = connect(
+  (state) => state,
+  {
+    updateCityPopulation,
+    playerOwnCity,
+    playerIncrementPoints,
+  }
+)((props) => {
+  // ... props.updateCityPopulation ... props.playerOwnCity ... props.playerIncrementPoints
+  return (
+    // ... props.state
+  );
+});
+```
