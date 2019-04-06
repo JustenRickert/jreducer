@@ -24,9 +24,12 @@ export const createRecordReducer = <T extends {}, K extends string>(
 ) => {
   const symbol = Symbol("record-reducer");
 
-  const actionCreator = (key: K, update: T | ((t: T) => T)) => ({
+  const actionCreator = <J extends K | K[]>(
+    key: J,
+    update: T | ((t: T, k?: J extends K[] ? K : never) => T)
+  ) => ({
     type: symbol,
-    key,
+    key: typeof key === "string" ? (key as K) : (key as K[]),
     update: update instanceof Function ? update : () => update
   });
 
@@ -35,9 +38,21 @@ export const createRecordReducer = <T extends {}, K extends string>(
     action
   ) => {
     if (action.type === symbol)
-      return Object.assign({}, state, {
-        [action.key]: action.update(state[action.key])
-      });
+      return Object.assign(
+        {},
+        state,
+        typeof action.key === "string"
+          ? {
+              [action.key]: action.update(state[action.key])
+            }
+          : action.key.reduce(
+              (o, k) => ({
+                ...o,
+                [k]: action.update(state[k], k)
+              }),
+              {}
+            )
+      );
     return state;
   };
 
